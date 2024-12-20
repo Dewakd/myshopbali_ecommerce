@@ -58,6 +58,8 @@ export default function Login() {
           required
         />
       </div>
+      <p>Username : johndoe</p>
+      <p>Password : password123</p>
       <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
         Login
       </button>
