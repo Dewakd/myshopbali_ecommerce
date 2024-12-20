@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useProducts } from "../api";
 import { useParams } from "react-router-dom";
 import { addItemToCart } from "../store/reducers/cartSlice";
@@ -16,6 +16,9 @@ export default function ProductDetail() {
   // State for the main image
   const [mainImage, setMainImage] = useState(product?.image[0]);
 
+  // State for the quantity
+  const [quantity, setQuantity] = useState(1);
+
   // FAQ dropdown states
   const [faqOpen, setFaqOpen] = useState([false, false, false, false]);
 
@@ -28,17 +31,27 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    if (quantity < 1) {
+      alert("Quantity must be at least 1.");
+      return;
+    }
+  
+    if (quantity > 20) {
+      alert("The stock is limited to 20.");
+      return;
+    }
+  
     dispatch(
       addItemToCart({
         _id: product._id,
         name: product.name,
         price: product.price,
-        image: product.image[0], // Include the image here
+        image: product.image[0],
+        quantity,
       })
     );
-    alert(`${product.name} added to cart!`);
+    alert(`${quantity} ${product.name} added to cart!`);
   };
-
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
@@ -95,7 +108,40 @@ export default function ProductDetail() {
             {/* Description */}
             <p className="text-gray-500 mt-4 text-sm">{product.description}</p>
 
-            {/* Add to Cart Button */}
+            {/* Quantity Input */}
+            <div className="mt-6">
+              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
+                Quantity
+              </label>
+              <div className="flex items-center gap-2 mt-2">
+                <button
+                  onClick={() => setQuantity(Math.max(quantity - 1, 1))}
+                  className="px-3 py-2 bg-gray-200 rounded-lg"
+                >
+                  -
+                </button>
+                <input
+                  id="quantity"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.min(20, Number(e.target.value))))}
+                  className="w-16 px-2 py-2 text-center border rounded-lg"
+                />
+                <button
+                  onClick={() => setQuantity(Math.min(quantity + 1, 20))}
+                  className="px-3 py-2 bg-gray-200 rounded-lg"
+                >
+                  +
+                </button>
+              </div>
+              {quantity === 20 && (
+                <p className="text-sm text-red-500 mt-2">
+                  The stock is limited to 20. You cannot add more.
+                </p>
+              )}
+            </div>
+
+            
             <button
               onClick={handleAddToCart}
               className="mt-6 bg-black text-white py-3 rounded-lg font-medium text-sm hover:bg-gray-800 transition"

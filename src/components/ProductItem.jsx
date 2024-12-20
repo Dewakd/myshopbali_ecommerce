@@ -4,17 +4,16 @@ import { Link } from 'react-router-dom';
 export default function ProductItem({ id, image, hoverImage, name, price }) {
   const [imgSrc, setImgSrc] = useState(image);
 
-  // Sync imgSrc with the image prop when it changes
   useEffect(() => {
     setImgSrc(image);
   }, [image]);
 
   const handleMouseOver = () => {
-    setImgSrc(hoverImage); // Switch to hover image
+    setImgSrc(hoverImage);
   };
 
   const handleMouseOut = () => {
-    setImgSrc(image); // Switch back to original image
+    setImgSrc(image); 
   };
 
   return (
