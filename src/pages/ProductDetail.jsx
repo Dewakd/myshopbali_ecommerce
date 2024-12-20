@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
 import { useProducts } from "../api";
-import { useParams } from "react-router-dom";
 import { addItemToCart } from "../store/reducers/cartSlice";
 import OurPolicy from "../components/OurPolicy";
 
@@ -9,6 +9,10 @@ export default function ProductDetail() {
   const { data, isLoading, isError } = useProducts();
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  // Get authentication status
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   // Find the selected product based on the `id` from the URL
   const product = data?.find((product) => product._id === id);
@@ -31,16 +35,22 @@ export default function ProductDetail() {
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      alert("You must be logged in to add items to the cart.");
+      navigate("/login"); // Redirect to the login page
+      return;
+    }
+
     if (quantity < 1) {
       alert("Quantity must be at least 1.");
       return;
     }
-  
+
     if (quantity > 20) {
       alert("The stock is limited to 20.");
       return;
     }
-  
+
     dispatch(
       addItemToCart({
         _id: product._id,
@@ -52,6 +62,7 @@ export default function ProductDetail() {
     );
     alert(`${quantity} ${product.name} added to cart!`);
   };
+
   if (isLoading) {
     return <h1>Loading...</h1>;
   }
@@ -141,7 +152,7 @@ export default function ProductDetail() {
               )}
             </div>
 
-            
+            {/* Add to Cart Button */}
             <button
               onClick={handleAddToCart}
               className="mt-6 bg-black text-white py-3 rounded-lg font-medium text-sm hover:bg-gray-800 transition"
